@@ -5,3 +5,5 @@ Style Transfer is a computational task in which the style of one author or disco
 Manual Style Transfer is an interface that directs the writer to manually transform a sentence to be more Whitmanic. 
 
 ![interface](img/screenshot.png)
+
+Originally presented in the 2018 exhibition of the Electronic Literature Organization, Montréal. 
