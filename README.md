@@ -1,8 +1,8 @@
 # Manual Style Transfer
 
-Style Transfer is a computational task in which the style of one author or discourse is projected onto a text---e.g. a pop song may be made Shakespearean. 
+Style Transfer is a computational task in which the style of one author or discourse is projected onto a text.
 
-Manual Style Transfer is an interface that directs the writer to manually transform a sentence to be more Whitmanic. 
+Manual Style Transfer is an interface that directs the writer to manually transform a sentence to be (in this case) more Whitmanic. A classifier trained to distinguish between authors is used to judge Whitmanicity.  Word Mover's Distance (Kusner, 2015) is used to keep track of semantic distance from the original sentence.  
 
 ![interface](img/screenshot.png)
 
