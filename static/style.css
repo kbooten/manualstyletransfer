@@ -1,0 +1,143 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+.modebar{
+      display: none !important;
+}
+
+
+.column-left{ float: left; width: 25%; }
+.column-right{ float: right; width: 25%; }
+.column-center{ display: inline-block; width: 50%;}
+
+
+.inv{
+    visibility:hidden;
+}
+
+#leftMessageWrapper{
+    margin-left:14px;
+    margin-right:10px;
+}
+
+#rightMessageWrapper{
+    margin-right:14px;
+    margin-left:10px;
+    min-height: 100px;
+}
+
+#messageHere{
+    font-family:arial;
+    font-size:16px;
+    color:#8c8c8c;
+}
+
+#hoverInfo{
+    font-family:arial;
+    font-size:16px;
+    color:#8c8c8c;   
+}
+
+#moreInfoWrapper{
+    margin-left:95px;
+    margin-top:240px;
+}
+
+#moreInfo{
+    font-family: monospace;
+    cursor:pointer;
+}
+
+#main {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    width: 50%;
+    background-color: white
+}
+
+#hintbutton{
+    font-family:monospace;
+    font-size:12px;
+    margin-left: 40px;
+    cursor:pointer;
+}
+
+#bottom{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    height: 100%;  
+}
+
+#myDiv {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+#textInput {
+    color:red;
+    font-family: monospace;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 1px solid black; 
+    font-size: 15px;
+    width: 98%;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 20px;
+    font-style: italic;
+}
+
+
+#theStartSent{
+	text-align: center;
+	color:black;
+	font-size:25px;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:20px;
+}
+
+
+#title{
+	font-family:arial;
+	text-align: center;
+	color:gray;
+	font-size:30px;
+    border-style:solid;
+    border-width:1px;
+    border-color:black;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+#reload{
+    font-family:monospace;
+    font-size:12px;
+    display:inline-block;
+    float:right;
+    cursor:pointer;
+
+}
+
+#enter{
+    font-family:monospace;
+    font-size:12px;
+    cursor:pointer;
+
+}
+
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: gray;
+    font-style:normal;
+    font-size:13px;
+}
+

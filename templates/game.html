@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+
+  <body>
+
+    <div id="main">
+      <div id="title">MANUAL STYLE TRANSFER<br>(Whitman Edition)</div>
+      <div id="theStartSent"></div>
+      <input id="textInput" autofocus type="textarea" placeholder="Rewrite the above sentence so that it is more WHITMANIC, hit Enter." name="msg"></input>
+      <button id="enter" onclick="enterButtonFunction()">ENTER</button>
+      <button id="reload" onclick="reloadSentence()" disabled="true">RELOAD</button>
+    </div>
+
+    <div id="bottom">
+      <div id="hint1" class="column-left">
+<!--         <button id="hintbutton" onclick="showhint()" disabled="true">Hint</button>
+ -->      
+      <span class="inv">---</span>
+      <div id="leftMessageWrapper">
+      <span id="messageHere">The goal of this game is to take a sentence and make it sound as if it were written by Walt Whitman.  Think about the words and phrases that typify his yawping, musky American style.<br><br>A machine learning model will judge how "Whitmanic" your sentence is.<br><br><b>You can change the meaning of the original sentence</b>...but not too much!</span>        
+      </div>
+      </div>
+      <div id="myDiv" class="column-center"><!-- Plotly chart will be drawn inside this DIV --></div>
+      <div id="hint2" class="column-right">
+      <span class="inv">---</span>
+      <div id="rightMessageWrapper"><span id="hoverInfo"></span></div>
+      <div id="moreInfoWrapper">
+      <button id="moreInfo" onclick="moreInfoPopup()">How this works</button>
+      </div>
+    </div>
+
+
+
+    <script> 
+
+
+      // var startSents = ["We cannot know his legendary head, with eyes like ripening fruit.","I grow old, I grow old, I shall wear the bottoms of my trousers rolled."]
+      //var startSents = ["We cannot know his legendary head, with eyes like ripening fruit."]
+      var startSents = ["Much madness is divinest sense to a discerning eye.","The summer demands and takes away too much, but night, the reserved, the reticent, gives more than it takes."]
+
+      var whitmanWords = ["1","2","3","4","5","6","7","8","9","0","4","3"]
+
+      startSent = startSents[Math.floor(Math.random() * startSents.length)];
+      $("#theStartSent").text('"'+startSent+'"')
+
+      var x = [];
+      var y = [];
+      var userSents = [];
+
+      var x_orig = []; //first point before user input
+      var y_orig = [];
+
+      var userSuccess = false;
+
+      ////
+
+      function enterButtonFunction(){
+        evalInput();
+        $("#textInput").val("");
+      }
+
+
+      function reloadSentence(){
+        var mostrecent = userSents.slice(-1).pop();
+        $("#textInput").val(mostrecent);
+      }
+
+
+      function passAsGetRequest(userInput){
+        $.get("/get", { msg: userInput, startSent: JSON.stringify(startSent)}).done(function(data){
+          evalResponse(data);
+        });
+      }
+
+
+      function evalResponse(data){
+        authorScore = data['cond1'];
+        simScore = data['cond2']*-1; //make positive
+        x.push(authorScore);
+        y.push(simScore);
+        newPlot();
+        commentOnMove();
+      }
+
+
+      function setFirstPoint(){;
+        $.get("/get", { msg: JSON.stringify(startSent), startSent: JSON.stringify(startSent)}).done(function(data){
+          authorScore = data['cond1'];
+          simScore = data['cond2']*-1;
+          x_orig.push(authorScore);
+          y_orig.push(simScore);
+          newPlot();
+        });    
+      }
+      //
+      //
+      setFirstPoint();
+
+
+      function evalInput(){
+        /// should do this more elegantly...
+        $("#reload").prop("disabled",false)
+        $("#textInput").attr("placeholder","Click the RELOAD button to load/edit your previous sentence.")
+        
+        inputQuote = $("#textInput").val();
+        userSents.push(inputQuote);
+        passAsGetRequest(inputQuote);
+      }
+
+
+      function newPlot(){
+
+        var trace1 = {
+          x: x,
+          y: y,
+          text:userSents,
+          mode: 'markers',
+          type: 'scatter',
+          hoverinfo: 'x+y',
+          marker: {
+            size: 10,
+            color: '#417df4',        
+          }
+        };
+
+        var trace2= {
+          x: x_orig,
+          y: y_orig,
+          text:[startSent],
+          mode: 'markers',
+          type: 'scatter',
+          hoverinfo: 'x+y',
+          marker: {
+             color:'#5db792',//'#42f4bc',
+             size: 10,
+             symbol: "square",
+
+          }
+        };
+
+        var data = [trace1,trace2];
+
+        var layout = {
+          showlegend:false,
+          xaxis: {
+            title: 'Whitmanicity',
+            showgrid: false,
+            zeroline: false,
+            range: [0,1],
+            fixedrange:true,
+          },
+          yaxis: {
+            title: 'Distance from Original Sentence',
+            // showline: false,
+            range:[-.1,2.5],
+            fixedrange:true,
+          },
+          // margin: {
+          //   l:00,
+          //   r:100,
+          // },
+          annotations:[
+          {
+            x:.8,
+            y:.5,
+            text: 'TARGET ZONE<br>Points in this space are:<br>-similar to original sentence<br>-sufficiently Whitmanic.',
+            showarrow: true,
+            arrowhead: 3,
+            ax: 36,
+            ay: -66
+          }
+
+          ],
+          shapes: [
+            {
+              type:"rect",
+              layer:"below",
+              xref:"x",
+              yref:"y",
+              x0:.5,
+              x1:1,
+              y0:0,
+              y1:.65,
+              fillcolor: '#d3d3d3',
+              opacity:0.2,
+              line:{
+                width:0,
+              }
+
+            },
+
+          ],
+        };
+
+        Plotly.newPlot('myDiv',data,layout);
+
+
+        document.getElementById('myDiv').on('plotly_hover', function(data){
+          if (data.points[0].curveNumber==0){
+            $("#hoverInfo").css("color","#417df4");
+          }else{
+            $("#hoverInfo").css("color","#5db792");
+          }
+          $("#hoverInfo").text("\""+data.points[0].text+"\"");
+        }).on('plotly_unhover', function(data){
+          $("#hoverInfo").text("");
+        });
+
+      }
+
+
+      /// handles text input when enter is hit
+      $(document).keypress(function(e) {
+        if(e.which == 13) {
+            evalInput();
+            e.preventDefault();
+            $("#textInput").val("");
+        }
+      });
+
+      // /// handles text input when tab is hit
+      // $(document).keypress(function(e) {
+      //   if(e.which == 0 || e.which == 9) {
+      //     console.log("tab");
+      //     reloadSentence();
+      //     e.preventDefault();
+      //   }
+      // });
+
+
+
+      // $(document).keypress(function(e) {
+      //     console.log(e.which)
+      // });
+
+
+    function evaluate1Move(){
+      ///tutorial
+      var mostrecent_x = x.slice(-1).pop();
+      var mostrecent_y = y.slice(-1).pop();
+
+      var x_eval = "";
+      var y_eval = "";
+
+      if (mostrecent_x<.35){
+        x_eval = "bad";
+      }else if (mostrecent_x<.5){
+        x_eval = "ok";
+      }else if (mostrecent_x>=.5){
+        x_eval = "good";
+      } 
+
+      if (mostrecent_y>1.2){
+        y_eval = "bad";
+      }else if (mostrecent_y>.65){
+        y_eval = "ok";
+      }else if (mostrecent_y<=.65){
+        y_eval = "good";
+      } 
+
+
+      if (x_eval == "good" && y_eval == "good"){
+        userSuccess = true;
+        return "Nice job!  You have successfully morphed the original sentence into Whitmanic style."
+      }else if (x_eval == "good" && y_eval == "ok"){
+        return "Almost there! Your sentence is positively fragrant of Whitman...now just try to make it a bit more similar to the original sentence."
+      }else if(x_eval == "good" && y_eval == "bad"){
+        return "Very Whitmanic indeed...but quite different than the original sentence. Try to make some less drastic changes."
+      }else if (x_eval == "ok" && y_eval == "good"){
+        return "Close! Just try to make it a bit more Whitmanic."
+      }else if (x_eval == "bad" && y_eval == "good"){
+        return "This doesn't put one in mind of Whitman at all, to be honest. Try to think of words that really capture his style. Don't be afraid to stretch the meaning of the original sentence."
+      }else if (x_eval == "ok" && y_eval == "ok"){
+        return "Getting close on both fronts...try to get just a bit closer to the TARGET ZONE.."
+      }else if (x_eval == "ok" && y_eval == "bad"){
+        return "Very far from the original sentence."
+      }else if (x_eval == "bad" && y_eval == "ok"){
+        return "Not very Whitmanic, I'm afraid."
+      }else if (x_eval == "bad" && y_eval == "bad"){
+        return "Yikes, this doesn't seem very much like the original sentence, but it also doesn't seem very Whitmanic either.  Try again, this time staying closer to the original sentence."
+      }
+    }
+
+
+    function commentOnMove(){
+      if (userSents.length==6 && userSuccess==false){
+        $("#messageHere").html("Think about what sorts of words Whitman uses.  Statistically, words like 'beauty' and 'I' are more likely to occur in Whitman than in other texts!");
+      }else if (userSents.length==4 && userSuccess==false){
+        $("#messageHere").html("Roll over the blue dots to see your previous attempts.");
+      }else if (userSents.length==2 && userSuccess==false){
+        $("#messageHere").html("Try making small changes, word by word.  And don't get discouraged!");
+      }else{
+        $("#messageHere").html(evaluate1Move());
+      }
+    }
+
+
+
+    function moreInfoPopup(){
+      window.alert("This interface relies on two machine learning techniques.\n\n(1): A logistic regression model was trained to distinguish between Whitman and other poems based on linguistic features (individual words as well as 'bigrams,' or sequential pairs of words). This model provides a probability that any input sentence was written by Whitman. A score above .5 suggests that the machine learning model is convinced that the input sentence was written by Whitman, though a more clearly Whitmanic sentence would receive a higher score. \n\n(2): Word Mover's Distance (Kusner 2015) is used to judge whether input sentence is semantically similar to the original sentence. In essence, this metric calculates the 'distance' required to move between one set of words and another. According to the underlying pretrained word2vec model, instance, semantically similar words ('leaves' and 'tree') are closer together in space than are dissimilar words ('leaves' and 'democracy'). \n\nKey libraries and resources: scikit-learn, nltk, gensim, GoogleNews vectors (machine learning), plotly.js (visualization).\n\n\n\n\"Manual Style Transfer\" ©Kyle Booten 2018");
+    }
+
+    </script>
+    <script>
+      /// credit to https://stackoverflow.com/a/10126042
+      var inactivityTime = function () {
+        var t;
+        window.onload = resetTimer;
+        // DOM Events
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
+
+        function logout() {
+          window.history.back();
+            //location.href = 'logout.php'
+        }
+
+        function resetTimer() {
+            clearTimeout(t);
+            t = setTimeout(logout, 1000*200)
+            // 1000 milisec = 1 sec
+        }
+      };
+      inactivityTime();
+    </script>
+
+  </body>
+</html>
