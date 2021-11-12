@@ -75,6 +75,7 @@
 
       function passAsGetRequest(userInput){
         $.get("/get", { msg: userInput, startSent: JSON.stringify(startSent)}).done(function(data){
+	  console.log(data);
           evalResponse(data);
         });
       }
@@ -116,6 +117,8 @@
 
 
       function newPlot(){
+	
+	var max_y = Math.max(Math.max(...y)+.1,2.5);
 
         var trace1 = {
           x: x,
@@ -159,7 +162,7 @@
           yaxis: {
             title: 'Distance from Original Sentence',
             // showline: false,
-            range:[-.1,2.5],
+            range:[-.1,max_y],
             fixedrange:true,
           },
           // margin: {
