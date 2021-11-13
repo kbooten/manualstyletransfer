@@ -43,7 +43,7 @@
 
       // var startSents = ["We cannot know his legendary head, with eyes like ripening fruit.","I grow old, I grow old, I shall wear the bottoms of my trousers rolled."]
       //var startSents = ["We cannot know his legendary head, with eyes like ripening fruit."]
-      var startSents = ["Much madness is divinest sense to a discerning eye.","The summer demands and takes away too much, but night, the reserved, the reticent, gives more than it takes."]
+      var startSents = ["I felt a Funeral, in my Brain, and Mourners to and fro kept treading ","The summer demands and takes away too much, but night, the reserved, the reticent, gives more than it takes.","We cannot know his legendary head, with eyes like ripening fruit.","...derived from the rocky breasts forever, flowing and drawn, and since our knowledge is historical, flowing, and flown."]
 
       var whitmanWords = ["1","2","3","4","5","6","7","8","9","0","4","3"]
 
@@ -121,15 +121,16 @@
 	var max_y = Math.max(Math.max(...y)+.1,2.5);
 
         var trace1 = {
-          x: x,
-          y: y,
+          x: x.slice(0,-1),
+          y: y.slice(0,-1),
           text:userSents,
           mode: 'markers',
           type: 'scatter',
           hoverinfo: 'x+y',
           marker: {
             size: 10,
-            color: '#417df4',        
+            color: '#849ed1',     
+            symbol: "x",   
           }
         };
 
@@ -148,7 +149,26 @@
           }
         };
 
-        var data = [trace1,trace2];
+
+        var trace3= {
+          x: [x.at(-1)],
+          y: [y.at(-1)],
+          text:["test test test"],
+          mode: 'markers',
+          type: 'scatter',
+          hoverinfo: 'x+y',
+          marker: {
+             color:'#417df4',//'#42f4bc',
+             size: 10,
+             symbol: "x",
+
+          }
+        };
+
+        console.log(trace3)
+
+
+        var data = [trace1,trace2,trace3];
 
         var layout = {
           showlegend:false,
@@ -207,9 +227,11 @@
 
         document.getElementById('myDiv').on('plotly_hover', function(data){
           if (data.points[0].curveNumber==0){
-            $("#hoverInfo").css("color","#417df4");
-          }else{
+            $("#hoverInfo").css("color","#849ed1");
+          }else if (data.points[0].curveNumber==1){
             $("#hoverInfo").css("color","#5db792");
+          }else{
+            $("#hoverInfo").css("color","#417df4");
           }
           $("#hoverInfo").text("\""+data.points[0].text+"\"");
         }).on('plotly_unhover', function(data){
